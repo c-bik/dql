@@ -1,4 +1,4 @@
-from dql_lex import lexer
+from dql.dql_lex import lexer
 
 
 def test_lexer():
