@@ -1,8 +1,7 @@
-from dql.dql_lex import lexer
+from dql.dql_lex import DqlLex
+# from dql.dql_yac import parser
 
-
-def test_lexer():
-    test_str = """
+input_string = """
 MATCH SENTENCE
 WHEN
 TYPE IS "FOO"
@@ -13,7 +12,11 @@ VALUE IS "bar" WITHIN MAX 3
 ) WITHIN MAX 5
 SELECT PARAGRAPH
     """
-    lexer.input(test_str)
+
+
+def test_lexer():
+    dq = DqlLex()
+    dq.parse(input_string=input_string)
 
     expected = [
         ("MATCH", "MATCH", 2, 1),
@@ -28,27 +31,27 @@ SELECT PARAGRAPH
         ("WITHIN", "WITHIN", 5, 50),
         ("MAX", "MAX", 5, 57),
         ("NUMBER", 3, 5, 61),
-        ("LPAREN", "(", 6, 63),
+        ("(", "(", 6, 63),
         ("TYPE", "TYPE", 7, 69),
         ("IN", "IN", 7, 74),
-        ("LPAREN", "(", 7, 77),
+        ("(", "(", 7, 77),
         ("STRING", "FOO", 7, 79),
-        ("COMMA", ",", 7, 84),
+        (",", ",", 7, 84),
         ("STRING", "BAR", 7, 86),
-        ("COMMA", ",", 7, 91),
+        (",", ",", 7, 91),
         ("STRING", "BAZ", 7, 93),
-        ("RPAREN", ")", 7, 98),
+        (")", ")", 7, 98),
         ("OR", "OR", 8, 104),
         ("VALUE", "VALUE", 8, 107),
         ("IN", "IN", 8, 113),
-        ("LPAREN", "(", 8, 116),
+        ("(", "(", 8, 116),
         ("STRING", "foo", 8, 118),
-        ("COMMA", ",", 8, 123),
+        (",", ",", 8, 123),
         ("STRING", "bar", 8, 125),
-        ("COMMA", ",", 8, 130),
+        (",", ",", 8, 130),
         ("STRING", "baz", 8, 132),
-        ("RPAREN", ")", 8, 138),
-        ("RPAREN", ")", 9, 140),
+        (")", ")", 8, 138),
+        (")", ")", 9, 140),
         ("WITHIN", "WITHIN", 9, 142),
         ("MAX", "MAX", 9, 149),
         ("NUMBER", 5, 9, 153),
@@ -58,7 +61,12 @@ SELECT PARAGRAPH
 
     actual = [
         (tok.type, tok.value, tok.lineno, tok.lexpos)
-        for tok in lexer
+        for tok in dq.lexer
     ]
 
     assert expected == actual
+
+
+# def test_parser():
+#     dq = DqlLex()
+#     parser.parse(input_string, lexer=dq.lexer)

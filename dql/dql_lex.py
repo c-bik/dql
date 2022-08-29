@@ -1,74 +1,68 @@
 import re
 
 from ply import lex
-
-reserved = [
-    'START',
-    'END',
-    'MATCH',
-    'WHEN',
-    'SENTENCE',
-    'PARAGRAPH',
-    'TYPE',
-    'VALUE',
-    'IS',
-    'LIKE',
-    'IN',
-    'MATCHES',
-    'OR',
-    'SELECT',
-    'WITHIN',
-    'MAX',
-]
-
-tokens = [
-             'LPAREN',
-             'RPAREN',
-             'COMMA',
-             'NUMBER',
-             'STRING',
-             'ID',
-         ] + reserved
-
-t_ignore = ' \t'
-
-t_LPAREN = r'\('
-t_RPAREN = r'\)'
-t_COMMA = r'\,'
+from ply.lex import TOKEN
 
 
-# Define a rule so we can track line numbers
-def t_newline(t):
-    r'\n+'
-    t.lexer.lineno += len(t.value)
+class DqlLex:
+    reserved = [
+        'IN',
+        'IS',
+        'OR',
+        'END',
+        'MAX',
+        'WHEN',
+        'LIKE',
+        'TYPE',
+        'MATCH',
+        'START',
+        'VALUE',
+        'SELECT',
+        'WITHIN',
+        'MATCHES',
+        'SENTENCE',
+        'PARAGRAPH',
+    ]
 
+    literals = "(),"
 
-def t_ID(t):
-    r'[^"][a-zA-Z]+'
-    t.value = t.value.upper()
-    if t.value in reserved:
-        t.type = t.value
-    else:
-        raise Exception(f"Unsupported {t}")
-    return t
+    tokens = ['NUMBER', 'STRING', 'ID', *reserved]
 
+    t_ignore = ' \t'
 
-def t_NUMBER(t):
-    r'\d+'
-    t.value = int(t.value)
-    return t
+    t_ignore_COMMENT = r'\#.*'
 
+    def __init__(self, **kwargs):
+        self.lexer = lex.lex(module=self, **kwargs)
 
-def t_STRING(t):
-    r'"[^"]+"'
-    t.value = re.search(r'"([^"]+)"', t.value).group(1)
-    return t
+    def parse(self, input_string: str):
+        self.lexer.input(input_string)
 
+    # Define a rule so we can track line numbers
+    @TOKEN(r'\n+')
+    def t_newline(self, t):
+        t.lexer.lineno += len(t.value)
 
-# Error handling rule
-def t_error(t):
-    print("Illegal character '%s'" % t.value[0])
-    t.lexer.skip(1)
+    @TOKEN(r'[^"][a-zA-Z]+')
+    def t_ID(self, t):
+        t.value = t.value.upper()
+        if t.value in self.reserved:
+            t.type = t.value
+        else:
+            raise Exception(f"Unsupported {t}")
+        return t
 
+    @TOKEN(r'\d+')
+    def t_NUMBER(self, t):
+        t.value = int(t.value)
+        return t
 
-lexer = lex.lex()
+    @TOKEN(r'"[^"]+"')
+    def t_STRING(self, t):
+        t.value = re.search(r'"([^"]+)"', t.value).group(1)
+        return t
+
+    # Error handling rule
+    def t_error(self, t):
+        print("Illegal character '%s'" % t.value[0])
+        t.lexer.skip(1)
