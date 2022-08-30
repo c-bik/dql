@@ -1,17 +1,17 @@
 from dql.dql_lex import DqlLex
-# from dql.dql_yac import parser
+from dql.dql_yac import parser
 
 input_string = """
 MATCH SENTENCE
 WHEN
-TYPE IS "FOO"
-VALUE IS "bar" WITHIN MAX 3
-(
-    TYPE IN ( "FOO", "BAR", "BAZ")
-    OR VALUE IN ( "foo", "bar", "baz" )
-) WITHIN MAX 5
+    TYPE IS "FOO"
+    VALUE IS "bar" WITHIN MAX 3
+    (
+        TYPE IN ( "FOO", "BAR", "BAZ")
+        OR VALUE IN ( "foo", "bar", "baz" )
+    ) WITHIN MAX 5
 SELECT PARAGRAPH
-    """
+"""
 
 
 def test_lexer():
@@ -67,6 +67,6 @@ def test_lexer():
     assert expected == actual
 
 
-# def test_parser():
-#     dq = DqlLex()
-#     parser.parse(input_string, lexer=dq.lexer)
+def test_parser():
+    dq = DqlLex()
+    parser.parse(input_string, lexer=dq.lexer)

@@ -1,7 +1,7 @@
 import ply.yacc as yacc
 
 
-from dql_lex import DqlLex
+from dql.dql_lex import DqlLex
 
 tokens = DqlLex.tokens
 
