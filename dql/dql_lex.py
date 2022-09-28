@@ -11,17 +11,11 @@ class DqlLex:
         'OR',
         'END',
         'MAX',
-        'WHEN',
         'LIKE',
         'TYPE',
-        'MATCH',
         'START',
         'VALUE',
-        'SELECT',
         'WITHIN',
-        'MATCHES',
-        'SENTENCE',
-        'PARAGRAPH',
     ]
 
     literals = "(),"
@@ -35,7 +29,7 @@ class DqlLex:
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
 
-    def parse(self, input_string: str):
+    def tokenize(self, input_string: str):
         self.lexer.input(input_string)
 
     # Define a rule so we can track line numbers
