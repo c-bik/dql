@@ -30,30 +30,34 @@ def p_strings(p):
     p[0] = [*p[1], p[3]]
 
 
-def p_within(p):
-    """within : WITHIN MAX NUMBER"""
-    p[0] = ("max", p[3])
-
-
 # dfa : TYPE IS STRING
 #     | TYPE IN string_list
 #     | TYPE LIKE STRING
 #     | VALUE IS STRING
 #     | VALUE IN string_list
 #     | VALUE LIKE STRING
+#     | SKIP NUMBER
 #     | ( dfa )
 #     | dfa OR dfa
-#     | dfa within
+#     | dfa AFTER NUMBER
+#     | dfa BEFORE NUMBER
+#     | dfa BETWEEN NUMBER NUMBER
 #     | dfa dfa
 
 def p_and_dfa(p):
     """dfa : dfa dfa"""
-    p[0] = ('and', p[1], p[2])
+    if isinstance(p[2], list):
+        p[0] = [p[1], *p[2]]
+    else:
+        p[0] = [p[1], p[2]]
 
 
 def p_or_dfa(p):
     """dfa : dfa OR dfa"""
-    p[0] = ('or', p[1], p[3])
+    if p[3][0] == 'or':
+        p[0] = ('or', [p[1], *p[3][1]])
+    else:
+        p[0] = ('or', [p[1], p[3]])
 
 
 def p_dfa_in_dfa(p):
@@ -61,9 +65,36 @@ def p_dfa_in_dfa(p):
     p[0] = (p[2])
 
 
-def p_dfa_within(p):
-    """dfa : dfa within"""
-    p[0] = ('within', p[1], p[2])
+def p_dfa_after(p):
+    """dfa : dfa AFTER NUMBER"""
+    if p[3] < 1:
+        raise SyntaxError(f"Invalid value for 'after': {p[3]}, MUST be '> 0'")
+    p[0] = ("after", p[3], p[1])
+
+
+def p_dfa_before(p):
+    """dfa : dfa BEFORE NUMBER"""
+    if p[3] < 1:
+        raise SyntaxError(f"Invalid value for 'before': {p[3]}, MUST be '> 0'")
+    p[0] = ("before", p[3], p[1])
+
+
+def p_dfa_between(p):
+    """dfa : dfa BETWEEN NUMBER NUMBER"""
+    if p[3] < 1:
+        raise SyntaxError(f"Invalid value for 'between' lower bound: {p[2]}, MUST be '> 0'")
+    elif p[4] < 1:
+        raise SyntaxError(f"Invalid value for 'between' upper bound: {p[3]}, MUST be '> 0'")
+    elif p[4] < p[3]:
+        raise SyntaxError(f"Invalid values for 'between' range: {p[4]}, MUST be '>' {p[3]}")
+    p[0] = ("between", p[3], p[4], p[1])
+
+
+def p_skip(p):
+    """dfa : SKIP NUMBER"""
+    if p[2] < 1:
+        raise SyntaxError(f"Invalid value for 'skip': {p[2]}, MUST be '> 0'")
+    p[0] = ('skip', p[2])
 
 
 def p_dfa_type_is(p):

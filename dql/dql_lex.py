@@ -10,12 +10,14 @@ class DqlLex:
         'IS',
         'OR',
         'END',
-        'MAX',
         'LIKE',
+        'SKIP',
         'TYPE',
+        'AFTER',
         'START',
         'VALUE',
-        'WITHIN',
+        'BEFORE',
+        'BETWEEN',
     ]
 
     literals = "(),"
