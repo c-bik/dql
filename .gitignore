@@ -128,5 +128,5 @@ dmypy.json
 # Pyre type checker
 .pyre/
 /.idea/
-/dql/parser.out
-/dql/parsetab.py
+/vpml/parser.out
+/vpml/parsetab.py
