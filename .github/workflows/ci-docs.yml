@@ -1,0 +1,46 @@
+name: CI and docs deploy
+
+on:
+  push:
+    branches: ["**"]
+
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v4.5.0
+        with:
+          python-version: "3.11.1"
+      - name: Setup DQL-Python
+        run: pip install -U pip setuptools wheel
+      #- run: pip install -e .
+      - run: pip install -r requirements.txt
+      - name: Run tests with coverage
+        run: pytest --cov=dql
+      - name: Generate Documentation
+        run: mkdocs build
+      - name: Setup Pages
+        uses: actions/configure-pages@v3
+      - name: Upload artifact
+        uses: actions/upload-pages-artifact@v1
+        with:
+          path: 'site/'
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v1

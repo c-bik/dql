@@ -1,3 +1,8 @@
 ply==3.11
-pytest
-pytest-cov
+pytest==7.2.1
+pytest-cov==4.0.0
+mkdocs==1.4.2
+mkdocs-material==9.0.6
+mkdocs-mermaid2-plugin==0.6.0
+mkdocstrings==0.20.0
+mkdocstrings-python==0.8.3

@@ -1,8 +1,6 @@
-from pprint import pprint
-
-from dql.dql_lex import DqlLex
-from dql.dql_yac import parser
-from dql.dql_engine import DqlEngine
+from dql.lexer import DqlLex
+from dql.parser import parser
+from dql.engine import DqlEngine
 
 
 def test_parser():

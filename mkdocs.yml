@@ -1,0 +1,12 @@
+site_name: Vector Pattern Matcher Language (VP-ML)
+
+plugins:
+    - search
+    - mermaid2
+    - mkdocstrings
+
+theme:
+  name: material
+
+nav:
+  - VP-ML: index.md
