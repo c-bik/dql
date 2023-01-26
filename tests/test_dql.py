@@ -1,6 +1,6 @@
-from dql.lexer import DqlLex
-from dql.parser import parser
-from dql.engine import DqlEngine
+from vpml.lexer import DqlLex
+from vpml.parser import parser
+from vpml.engine import DqlEngine
 
 
 def test_parser():
