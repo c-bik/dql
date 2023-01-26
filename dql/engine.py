@@ -30,6 +30,7 @@ class DqlEngine:
             elif rule[0] == 'skip':
                 count = rule[1]
                 # keep reducing count until 0, if at 0 mark the rule as consumed by not pushing it back
+                count -= 1
                 if count > 0:
                     rules.insert(0, ('skip', count - 1))
                 return True

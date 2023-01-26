@@ -1,6 +1,6 @@
 import ply.yacc as yacc
 
-from dql.dql_lex import DqlLex
+from dql.lexer import DqlLex
 
 tokens = DqlLex.tokens
 
