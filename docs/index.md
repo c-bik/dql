@@ -24,11 +24,11 @@ dql -> ^ m_sq $
     ->   m_sq $
     ->   m_sq
 
-m_sq -> match
+m_sq -> match_opt_scope
      -> skip
-     -> match   m_sq
-     -> skip    m_sq
-     -> EXTRACT ( m_sq )
+     -> match_opt_scope m_sq
+     -> skip            m_sq
+     -> EXTRACT       ( m_sq )
      -> ( m_or )
 
 m_or -> ( m_sq ) OR ( m_sq )
