@@ -1,32 +1,37 @@
 import re
+from pprint import pprint
 
 from ply import lex
 from ply.lex import TOKEN
 
 
-class DqlLex:
+class VpmlLexer:
     reserved = [
-        'IN',
-        'IS',
-        'OR',
-        'END',
-        'LIKE',
-        'SKIP',
-        'TYPE',
-        'AFTER',
         'START',
-        'VALUE',
-        'BEFORE',
+        'END',
+        'VECTOR',
+        'SKIP',
+        'IS',
+        'IN',
+        'NOCASE',
+        'LIKE',
+        'NOT',
+        'OR',
+        'WITHIN',
         'BETWEEN',
+        'EXTRACT',
+        'DOT',
     ]
 
-    literals = "(),"
+    literals = "().[]"
 
     tokens = ['NUMBER', 'STRING', 'ID', *reserved]
 
     t_ignore = ' \t'
 
     t_ignore_COMMENT = r'\#.*'
+
+    t_STRING = r'((?<![\\])")((?:.(?!(?<![\\])"))*.?)"'
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
@@ -39,13 +44,13 @@ class DqlLex:
     def t_newline(self, t):
         t.lexer.lineno += len(t.value)
 
-    @TOKEN(r'[^"][a-zA-Z]+')
+    @TOKEN(r'[^".][a-zA-Z]+')
     def t_ID(self, t):
         t.value = t.value.upper()
         if t.value in self.reserved:
             t.type = t.value
         else:
-            raise Exception(f"Unsupported {t}")
+            t.type = 'STRING'
         return t
 
     @TOKEN(r'\d+')
@@ -53,12 +58,17 @@ class DqlLex:
         t.value = int(t.value)
         return t
 
-    @TOKEN(r'"[^"]+"')
-    def t_STRING(self, t):
-        t.value = re.search(r'"([^"]+)"', t.value).group(1)
-        return t
-
     # Error handling rule
     def t_error(self, t):
         print("Illegal character '%s'" % t.value[0])
         t.lexer.skip(1)
+
+    def test(self, data):
+        self.tokenize(data)
+        for token in self.lexer:
+            print(token)
+
+
+if __name__ == '__main__':
+    vpml = VpmlLexer()
+    vpml.test('VECTOR.type like "^\.*foo{VECTOR.type2,3}+([^bar.*\\\"]).*$"')

@@ -1,13 +1,13 @@
-from vpml.lexer import DqlLex
-from vpml.parser import parser
-from vpml.engine import DqlEngine
+from vpml.vpml_lexer import VpmlLexer
+from vpml.vpml_parser import parser
+from vpml.vpml_engine import DqlEngine
 
 
 def test_parser():
-    dq = DqlLex()
+    dq = VpmlLexer()
     dql = """
     TYPE IS "FOO"
-    VALUE IS "bar" BEFORE 3
+    VALUE IS "bar" WITHIN 3
     SKIP 10
     (
         (
@@ -32,7 +32,7 @@ def test_parser():
             VALUE IN ("foo2", "bar2", "baz2")
             VALUE IN ("foo3", "bar3", "baz3")
         )
-    ) AFTER 5
+    )
     """
 
     rule = parser.parse(dql, lexer=dq.lexer)
@@ -72,7 +72,7 @@ def test_parser():
 
 
 def test_engine():
-    dq = DqlLex()
+    dq = VpmlLexer()
     input_string1 = """
     TYPE IS "FOO"
     VALUE IS "bar" BEFORE 3
