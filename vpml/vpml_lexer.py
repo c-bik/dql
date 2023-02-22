@@ -19,11 +19,10 @@ class VpmlLexer:
         'OR',
         'WITHIN',
         'BETWEEN',
-        'EXTRACT',
-        'DOT',
+        'EXTRACT'
     ]
 
-    literals = "().[]"
+    literals = "().[],"
 
     tokens = ['NUMBER', 'STRING', 'ID', *reserved]
 
@@ -31,7 +30,10 @@ class VpmlLexer:
 
     t_ignore_COMMENT = r'\#.*'
 
-    t_STRING = r'((?<![\\])")((?:.(?!(?<![\\])"))*.?)"'
+    @TOKEN(r'((?<![\\])")((?:.(?!(?<![\\])"))*.?)"')
+    def t_STRING(self, t):
+        t.value = re.search(r'"([^"]+)"', t.value).group(1)
+        return t
 
     def __init__(self, **kwargs):
         self.lexer = lex.lex(module=self, **kwargs)
@@ -71,4 +73,4 @@ class VpmlLexer:
 
 if __name__ == '__main__':
     vpml = VpmlLexer()
-    vpml.test('VECTOR.type like "^\.*foo{VECTOR.type2,3}+([^bar.*\\\"]).*$"')
+    vpml.test('VECTOR.type like "^.*foo{VECTOR.type2,3}+([^bar.*\\\"]).*$"')

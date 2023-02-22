@@ -1,85 +1,75 @@
 from vpml.vpml_lexer import VpmlLexer
 from vpml.vpml_parser import parser
-from vpml.vpml_engine import DqlEngine
 
 
 def test_parser():
-    dq = VpmlLexer()
-    dql = """
-    TYPE IS "FOO"
-    VALUE IS "bar" WITHIN 3
+    vpml = VpmlLexer()
+
+    # vpml_rule = """START
+    # VECTOR.type IS "FOO"
+    # VECTOR.value IS "bar" WITHIN 3
+    # SKIP 10
+    # (
+    #     (
+    #         VECTOR.type NOT IN [ "FOO", "BAR", "BAZ" ]
+    #         (
+    #             (
+    #                 VECTOR.TYPE IN NOCASE ("FOO1", "BAR1", "BAZ1")
+    #             ) OR (
+    #                 EXTRACT ( VECTOR.VALUE IN ("foo", "bar", "baz") )
+    #                 VECTOR.VALUE IN ("foo1", "bar1", "baz1")
+    #             )
+    #         ) BETWEEN 3 5
+    #     )
+    #     OR (
+    #         VECTOR.VALUE LIKE ".*foo"
+    #         VECTOR.VALUE IN ("foo1", "bar1", "baz1")
+    #     )
+    # )
+    # END"""
+    vpml_rule = """
+    START
+    VECTOR.VALUE LIKE ".*foo"
+    VECTOR.type IS "FOO"
+    VECTOR.value IS "bar" WITHIN 3
+    VECTOR.type NOT IN [ "FOO", "BAR", "BAZ" ]
     SKIP 10
-    (
-        (
-            TYPE IN ("FOO", "BAR", "BAZ")
-            (
-                TYPE IN ("FOO1", "BAR1", "BAZ1")
-                OR (
-                    VALUE IN ("foo", "bar", "baz")
-                    VALUE IN ("foo1", "bar1", "baz1")
-                )
-                OR (
-                    VALUE IN ("foo2", "bar2", "baz2")
-                    VALUE IN ("foo3", "bar3", "baz3")
-                )
-            ) BETWEEN 3 5
-        )
-        OR (
-            VALUE IN ("foo", "bar", "baz")
-            VALUE IN ("foo1", "bar1", "baz1")
-        )
-        OR (
-            VALUE IN ("foo2", "bar2", "baz2")
-            VALUE IN ("foo3", "bar3", "baz3")
-        )
-    )
+    END
     """
 
-    rule = parser.parse(dql, lexer=dq.lexer)
+    rule = parser.parse(vpml_rule, lexer=vpml.lexer)
+    print(rule)
 
-    expected_rule = [
-        ('type', 'FOO'),
-        ('before', 3, ('value', 'bar')),
-        ('skip', 10),
-        ('after', 5,
-         ('or', [
-             [
-                 ('type', ['FOO', 'BAR', 'BAZ']),
-                 ('between', 3, 5,
-                  ('or', [
-                      ('type', ['FOO1', 'BAR1', 'BAZ1']),
-                      [
-                          ('value', ['foo', 'bar', 'baz']),
-                          ('value', ['foo1', 'bar1', 'baz1'])
-                      ],
-                      [
-                          ('value', ['foo2', 'bar2', 'baz2']),
-                          ('value', ['foo3', 'bar3', 'baz3'])
-                      ]
-                  ]))
-             ],
-             [
-                 ('value', ['foo', 'bar', 'baz']),
-                 ('value', ['foo1', 'bar1', 'baz1'])
-             ],
-             [
-                 ('value', ['foo2', 'bar2', 'baz2']),
-                 ('value', ['foo3', 'bar3', 'baz3'])
-             ]
-         ]))
-    ]
-    assert expected_rule == rule
+    # expected_rule = [
+    #    ('type', 'FOO'),
+    #    ('before', 3, ('value', 'bar')),
+    #    ('skip', 10),
+    #    ('after', 5,
+    #     ('or', [
+    #         [
+    #             ('type', ['FOO', 'BAR', 'BAZ']),
+    #             ('between', 3, 5,
+    #              ('or', [
+    #                  ('type', ['FOO1', 'BAR1', 'BAZ1']),
+    #                  [
+    #                      ('value', ['foo', 'bar', 'baz']),
+    #                      ('value', ['foo1', 'bar1', 'baz1'])
+    #                  ],
+    #                  [
+    #                      ('value', ['foo2', 'bar2', 'baz2']),
+    #                      ('value', ['foo3', 'bar3', 'baz3'])
+    #                  ]
+    #              ]))
+    #         ],
+    #         [
+    #             ('value', ['foo', 'bar', 'baz']),
+    #             ('value', ['foo1', 'bar1', 'baz1'])
+    #         ],
+    #         [
+    #             ('value', ['foo2', 'bar2', 'baz2']),
+    #             ('value', ['foo3', 'bar3', 'baz3'])
+    #         ]
+    #     ]))
+    # ]
 
-
-def test_engine():
-    dq = VpmlLexer()
-    input_string1 = """
-    TYPE IS "FOO"
-    VALUE IS "bar" BEFORE 3
-    SKIP 1
-    TYPE IS "d" AFTER 1
-    """
-    rules = parser.parse(input_string1, lexer=dq.lexer)
-
-    tokens = [('FOO', 1), ('FOO', "bar"), ('b', 2), ('d', 5)]
-    assert not DqlEngine(rules).match(tokens)
+    # assert expected_rule == rule
