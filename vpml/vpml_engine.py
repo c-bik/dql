@@ -1,22 +1,24 @@
 from copy import deepcopy
 
+from vpml.vpml_parser import ParseNode
 
-class DqlEngine:
-    def __init__(self, rules, name=""):
-        self.name = name
-        self.rules = rules
 
-    def _is_match(self, token, rules):
-        if len(rules) > 0:
+class VpmlEngine:
+    def __init__(self, vpml):
+        self.vpml = vpml
 
-            rule = rules.pop(0)
+    def _is_match(self, token, vpml: ParseNode):
+        if vpml is not None:
+            print(f"Class {vpml.__class__}")
+
+            rule = vpml.pop(0)
 
             if rule[0] == 'type':
                 # TODO implement in and like
                 result = token[0] == rule[1]
                 # if didn't match push the rule back on stack to match with next token
                 if not result:
-                    rules.insert(0, rule)
+                    vpml.insert(0, rule)
                 return result
 
             elif rule[0] == 'value':
@@ -24,7 +26,7 @@ class DqlEngine:
                 result = token[1] == rule[1]
                 # if didn't match push the rule back on stack to match with next token
                 if not result:
-                    rules.insert(0, rule)
+                    vpml.insert(0, rule)
                 return result
 
             elif rule[0] == 'skip':
@@ -32,7 +34,7 @@ class DqlEngine:
                 # keep reducing count until 0, if at 0 mark the rule as consumed by not pushing it back
                 count -= 1
                 if count > 0:
-                    rules.insert(0, ('skip', count - 1))
+                    vpml.insert(0, ('skip', count - 1))
                 return True
 
             elif rule[0] == 'after':
@@ -46,7 +48,7 @@ class DqlEngine:
                 if not result:
                     # reduce the match window and signal success for temporary continuation
                     count = count - 1 if count > 1 else 0
-                    rules.insert(0, ('after', count, rule[2]))
+                    vpml.insert(0, ('after', count, rule[2]))
                     return True
                 else:
                     # matched after window : success
@@ -63,7 +65,7 @@ class DqlEngine:
                 if not result:
                     # reduce the match window and signal success for temporary continuation
                     count = count - 1 if count > 1 else 0
-                    rules.insert(0, ('before', count, rule[2]))
+                    vpml.insert(0, ('before', count, rule[2]))
                     return True
                 else:
                     # matched after window : fail
@@ -87,7 +89,7 @@ class DqlEngine:
                     max_count = max_count - 1 if max_count > 1 else 0
 
                     # update the window and signal temporary success since more attempts left in valid window
-                    rules.insert(0, ('between', min_count, max_count, rule[2]))
+                    vpml.insert(0, ('between', min_count, max_count, rule[2]))
                     return True
 
             elif rule[0] == 'or':
@@ -98,9 +100,9 @@ class DqlEngine:
                     result = result or res
                     sub_rules = [*sub_rules, sub_rule]
                 if not result:
-                    rules.insert(0, rule)
+                    vpml.insert(0, rule)
                 else:
-                    rules.insert(0, ('or', sub_rules))
+                    vpml.insert(0, ('or', sub_rules))
                 return result
 
             else:
@@ -110,12 +112,12 @@ class DqlEngine:
             return False
 
     def match(self, match_tokens):
-        rules = deepcopy(self.rules)
+        vpml = deepcopy(self.vpml)
         matched = False
-        while len(match_tokens) > 0 and len(rules) > 0:
-            matched = self._is_match(match_tokens.pop(0), rules)
+        while len(match_tokens) > 0 and vpml is not None:
+            matched = self._is_match(match_tokens.pop(0), vpml)
             if not matched:
                 break
-            elif len(rules) < 1:
+            elif vpml is None:
                 break
         return matched
