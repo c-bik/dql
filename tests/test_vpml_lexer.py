@@ -34,9 +34,10 @@ def test_lexer():
     END
     """)
 
-    # for t in vpml.lexer:
+    tokens = list(token for token in vpml.lexer)
+    # for t in tokens:
     #     print(t)
 
-    got_tokens = sorted(set(token.type for token in vpml.lexer))
+    got_tokens = sorted(set(token.type for token in tokens))
 
     assert got_tokens == expected_tokens

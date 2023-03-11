@@ -46,7 +46,7 @@ m_opt_scope -> match
             -> match BETWEEN _integer_ _integer_
 
 match -> kind is_op   _string_
-      -> kind in_op   [ list ]
+      -> kind in_op   [ string_list ]
       -> kind like_op _string_
 
 is_op -> IS
@@ -64,6 +64,6 @@ like_op -> LIKE
 
 kind -> VECTOR . _string_
 
-list -> _string_
-     -> _string_ , list
+string_list -> _string_
+            -> _string_ , string_list
 ```

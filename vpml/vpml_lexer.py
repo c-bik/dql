@@ -48,8 +48,8 @@ class VpmlLexer:
 
     @TOKEN(r'[^".][a-zA-Z]+')
     def t_ID(self, t):
-        t.value = t.value.upper()
-        if t.value in self.reserved:
+        if t.value.upper() in self.reserved:
+            t.value = t.value.upper()
             t.type = t.value
         else:
             t.type = 'STRING'
