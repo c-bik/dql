@@ -1,5 +1,4 @@
 import re
-from pprint import pprint
 
 from ply import lex
 from ply.lex import TOKEN
@@ -69,8 +68,3 @@ class VpmlLexer:
         self.tokenize(data)
         for token in self.lexer:
             print(token)
-
-
-if __name__ == '__main__':
-    vpml = VpmlLexer()
-    vpml.test('VECTOR.type like "^.*foo{VECTOR.type2,3}+([^bar.*\\\"]).*$"')
