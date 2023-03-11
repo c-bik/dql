@@ -1,6 +1,53 @@
-# Language definition 
+# VPML Parse tree example
+A VPML expression like the following...
+```
+START
+VECTOR.VALUE LIKE ".*foo"
+VECTOR.type IS "FOO"
+SKIP 10
+(
+    VECTOR.value IS "bar" WITHIN 3
+    VECTOR.type NOT IN [ "FOO", "BAR", "BAZ" ]
+)
+OR
+( VECTOR.type NOT IN [ "FOO", "BAR", "BAZ" ] )
+END
+```
+...will produce a parse tree like...
+```json
+{"root": {"has_end": true, "has_start": true, "parse_tree": [
+   {"match": {
+      "op": {"has_not": false, "no_case": false, "op": "like"},
+      "property": "VALUE",
+      "value": ".*foo"}},
+   {"match": {
+      "op": {"has_not": false, "no_case": false, "op": "is"},
+      "property": "type",
+      "value": "FOO"}},
+   {"skip": 10},
+   {"or": {"parse_tree": [
+      {"within": {
+         "end": 3,
+         "parse_tree": {"match": {
+            "op": {"has_not": false, "no_case": false, "op": "is"},
+            "property": "value",
+            "value": "bar"}}}},
+      {"match": {
+         "op": {"has_not": true, "no_case": false, "op": "in"},
+         "property": "type",
+         "value": ["FOO", "BAR", "BAZ"]}},
+      {"match": {
+         "op": {"has_not": true, "no_case": false, "op": "in"},
+         "property": "type",
+         "value": ["FOO", "BAR", "BAZ"]}}
+   ]}}
+]}}
+```
 
-## Definition of components
+
+# Language specification
+
+## Phrases and Keywords
 | Term                        | Definition                                                                                               | Example                                                          |
 |-----------------------------|----------------------------------------------------------------------------------------------------------|------------------------------------------------------------------|
 | `VECTOR._string_`           | Match _string_ property part of the vector                                                               | `VECTOR.type LIKE ".*try$"`                                      |
@@ -17,12 +64,8 @@
 | `BETWEEN #n #m`             | The match must be found after _n_<sup>th</sup> and before _m_<sup>th</sup> vector                        | `VECTOR.value IS "x" BETWEEN 5 10`                               |
 | `EXTRACT(_match_sequence_)` | The matched sequence will be given as output                                                             | `EXTRACT(VECTOR.value IS "India")`                               |
 
-## Examples _**TBD**_
-1. **Check if the text contains a string "foo bar"**
-    ```
-    ```
 
-## Formal Grammar Specification
+## LALR Grammar
 ```
 root -> START m_sq END
      -> START m_sq
